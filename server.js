@@ -30,11 +30,14 @@ app.set('port', process.env.PORT || 4000);
 
 app.locals.title = 'statify-backend';
 
+app.get('/login', (request, response) => {
+  console.log('anakin says - its working!')
+  return response.status(200).redirect(`https://accounts.spotify.com/authorize/?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&scope=user-read-private%20user-read-email%20user-top-read%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played&state=34fFs29kd09`)
+})
+
 app.listen(app.get('port'), () => {
   // eslint-disable-next-line no-console
   console.log(`${app.locals.title} is running on ${app.get('port')}.`);
 });
-
-console.log(process.env.TEST_VAR)
 
 module.exports = app;
