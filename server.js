@@ -35,9 +35,10 @@ app.get('/login', (request, response) => {
 })
 
 app.post('/top-songs', (request, response) => {
+  const authCode = request.body.authCode;
   const formData = {
     'grant_type': 'authorization_code',
-    'code': request.body.authCode,
+    'code': authCode,
     'redirect_uri': 'http://localhost:3000/',
     'client_id': process.env.SPOTIFY_CLIENT_ID,
     'client_secret': process.env.SPOTIFY_SECRET_ID,
@@ -59,18 +60,6 @@ app.post('/top-songs', (request, response) => {
   }).then(res => res.json())
   .then(jsonRes => response.status(200).json({ body: jsonRes }))
   .catch(error => response.status(500).json({ error }));
-//  return fetch(
-//    `https://galvanize-cors-proxy.herokuapp.com/` + 
-//    `https://accounts.spotify.com/api/token`, {
-//      method: 'POST',
-//      headers: {
-//        'Content-Type': 'application/x-www-form-urlencoded',
-//        'Accept': 'application/json'
-//      },
-//     body: formBody
-//    }).then(res => res.json())
-//   .then(jsonRes => accessTokenCleaner(jsonRes))
-//   .catch(error => alert(error));
 })
 
 app.listen(app.get('port'), () => {
