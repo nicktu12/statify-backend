@@ -30,12 +30,44 @@ app.set('port', process.env.PORT || 4000);
 
 app.locals.title = 'statify-backend';
 
+// helper functions
+const cleanStringArray = (array) => array.join(', ');
+
+const cleanArtistRes = (json)  => {
+  return json.items.map(item => 
+    Object.assign({}, {
+      name: item.name, 
+      photo: item.images[0], 
+      followers: item.followers.total.toLocaleString(), 
+      popularity: item.popularity,
+      genres: cleanStringArray(item.genres)
+    })  
+  );
+};
+
+const cleanUserRes = (json, responseBody) => {
+  return Object.assign(
+    responseBody, 
+    {
+      name: json.display_name, 
+      email: json.email, 
+      image: json.images[0].url,
+      id: json.id,
+      followers: json.followers.total,
+      plan: json.product,
+    },
+  );
+};
+
+// start auth code flow
 app.get('/login', (request, response) => {
   return response.status(200).redirect(`https://accounts.spotify.com/authorize/?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&scope=user-read-private%20user-read-email%20user-top-read%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played&state=34fFs29kd09`)
 })
 
+// get auth code, user info, top songs and recently played
 app.post('/top-songs', (request, response) => {
   const authCode = request.body.authCode;
+  // this will be response body
   const body = {};
   const formData = {
     'grant_type': 'authorization_code',
@@ -51,6 +83,7 @@ app.post('/top-songs', (request, response) => {
     formBody.push(encodedKey + '=' + encodedValue);
 }
   formBody = formBody.join('&');
+  // retrieve access token
   fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: {
@@ -60,7 +93,9 @@ app.post('/top-songs', (request, response) => {
     body: formBody
   }).then(res => res.json())
   .then(res => {
+    // copy access token to response body
     Object.assign(body, { access_token: res.access_token });
+    // retrieve user info
     fetch ('https://api.spotify.com/v1/me', {
       headers: {
         'Content-Type': 'application/json',
@@ -68,17 +103,26 @@ app.post('/top-songs', (request, response) => {
       }
     }).then(res => res.json())
     .then(res => {
-      Object.assign(body, {
-        name: res.display_name, 
-        email: res.email, 
-        image: res.images[0].url,
-        id: res.id,
-        followers: res.followers.total,
-        plan: res.product,
-      })
-      // start next fetch here!
+      // copy user info to response body
+      cleanUserRes(res, body)
+      // retrieve top artists
+      fetch(
+        `https://api.spotify.com/v1/me/top/artists?limit=50`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${body.access_token}`
+          }
+        }).then(res => res.json())
+        // copy top artists to response body
+        .then(res => {
+          console.log(res)
+          Object.assign(body, { topArtists: cleanArtistRes(res) });
+          // retrieve recently played songs
+          
+        })
+        // send response
+        .then(res => response.status(200).json({ body }))
     })
-    .then(res => response.status(200).json({ body }))
   })
  .catch(error => response.status(500).json({ error }));
 })
