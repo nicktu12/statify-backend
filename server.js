@@ -36,6 +36,7 @@ app.get('/login', (request, response) => {
 
 app.post('/top-songs', (request, response) => {
   const authCode = request.body.authCode;
+  const body = {};
   const formData = {
     'grant_type': 'authorization_code',
     'code': authCode,
@@ -58,8 +59,28 @@ app.post('/top-songs', (request, response) => {
     },
     body: formBody
   }).then(res => res.json())
-  .then(jsonRes => response.status(200).json({ body: jsonRes }))
-  .catch(error => response.status(500).json({ error }));
+  .then(res => {
+    Object.assign(body, { access_token: res.access_token });
+    fetch ('https://api.spotify.com/v1/me', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${body.access_token}`
+      }
+    }).then(res => res.json())
+    .then(res => {
+      Object.assign(body, {
+        name: res.display_name, 
+        email: res.email, 
+        image: res.images[0].url,
+        id: res.id,
+        followers: res.followers.total,
+        plan: res.product,
+      })
+      // start next fetch here!
+    })
+    .then(res => response.status(200).json({ body }))
+  })
+ .catch(error => response.status(500).json({ error }));
 })
 
 app.listen(app.get('port'), () => {
