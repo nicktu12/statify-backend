@@ -73,13 +73,26 @@ const recentlyPlayedCleaner = (json) => {
   );
 };
 
+const cleanSongRes = (json) => {
+  return json.items.map(song => 
+    Object.assign({}, {
+      title: song.name, 
+      artists: cleanSongArtist(song.artists),
+      album: song.album.name,
+      image: song.album.images[0].url,
+      popularity: song.popularity,
+      uri: song.uri,
+    })
+  );
+};
+
 // start auth code flow
 app.get('/login', (request, response) => {
   return response.status(200).redirect(`https://accounts.spotify.com/authorize/?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&scope=user-read-private%20user-read-email%20user-top-read%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played&state=34fFs29kd09`)
 })
 
 // get auth code, user info, top songs and recently played
-app.post('/top-songs', (request, response) => {
+app.post('/top-artists', (request, response) => {
   const authCode = request.body.authCode;
   // this will be response body
   const body = {};
@@ -149,7 +162,26 @@ app.post('/top-songs', (request, response) => {
     .catch(error => response.status(500).json({ error }));
   })
  .catch(error => response.status(500).json({ error }));
-})
+});
+
+app.post('/top-songs', (request, response) => {
+  const token = request.body.token;
+  const urls = [
+    'https://api.spotify.com/v1/me/top/tracks?limit=40&time_range=short_term',
+    'https://api.spotify.com/v1/me/top/tracks?limit=40&time_range=medium_term',
+    'https://api.spotify.com/v1/me/top/tracks?limit=40&time_range=long_term'
+  ];
+  Promise.all(urls.map((url) => {
+    return fetch(url, {
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(res => res.json())
+    .then(res => cleanSongRes(res))
+  }))
+  .then(res => response.status(200).json({ res }))
+});
 
 app.listen(app.get('port'), () => {
   // eslint-disable-next-line no-console
