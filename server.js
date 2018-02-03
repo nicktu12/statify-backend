@@ -33,6 +33,10 @@ app.locals.title = 'statify-backend';
 // helper functions
 const cleanStringArray = (array) => array.join(', ');
 
+const cleanSongArtist = (array) => {
+  return cleanStringArray(array.map(artist => artist.name));
+};
+
 const cleanArtistRes = (json)  => {
   return json.items.map(item => 
     Object.assign({}, {
@@ -45,9 +49,9 @@ const cleanArtistRes = (json)  => {
   );
 };
 
-const cleanUserRes = (json, responseBody) => {
+const cleanUserRes = (json) => {
   return Object.assign(
-    responseBody, 
+    {}, 
     {
       name: json.display_name, 
       email: json.email, 
@@ -56,6 +60,16 @@ const cleanUserRes = (json, responseBody) => {
       followers: json.followers.total,
       plan: json.product,
     },
+  );
+};
+
+const recentlyPlayedCleaner = (json) => {
+  return json.items.map(song =>
+    Object.assign({}, {
+      title: song.track.name,
+      artists: cleanSongArtist(song.track.artists)
+    },
+    )
   );
 };
 
@@ -104,24 +118,32 @@ app.post('/top-songs', (request, response) => {
     }).then(res => res.json())
     .then(res => {
       // copy user info to response body
-      cleanUserRes(res, body)
+      Object.assign(body, { userInfo: cleanUserRes(res) });
       // retrieve top artists
-      fetch(
-        `https://api.spotify.com/v1/me/top/artists?limit=50`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${body.access_token}`
-          }
-        }).then(res => res.json())
+      fetch(`https://api.spotify.com/v1/me/top/artists?limit=50`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${body.access_token}`
+        }
+      }).then(res => res.json())
+      .then(res => {
         // copy top artists to response body
-        .then(res => {
-          console.log(res)
-          Object.assign(body, { topArtists: cleanArtistRes(res) });
-          // retrieve recently played songs
-          
-        })
-        // send response
-        .then(res => response.status(200).json({ body }))
+        Object.assign(body, { topArtists: cleanArtistRes(res) });
+        // retrieve recently played songs
+        fetch(
+          `https://api.spotify.com/v1/me/player/recently-played`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${body.access_token}`
+            }
+          }).then(res => res.json())
+          .then(res => {
+            // copy recently played to response body
+            Object.assign(body, { recentlyPlayed: recentlyPlayedCleaner(res) });
+          })
+          // send response
+          .then(res => response.status(200).json({ body }))
+      })
     })
   })
  .catch(error => response.status(500).json({ error }));
