@@ -180,8 +180,51 @@ app.post('/top-songs', (request, response) => {
       }
     }).then(res => res.json())
     .then(res => cleanSongRes(res))
+    .catch(error => response.status(500).json({ error }))
   }))
   .then(res => response.status(200).json(res))
+  .catch(error => response.status(500).json({ error }))
+});
+
+// post playlist to user profile
+app.post('/post-playlist', (request, response) => {
+  const payload = request.body;
+  fetch(`https://api.spotify.com/v1/users/${payload.id}/playlists`,
+    {
+      body: JSON.stringify({
+        name: `${payload.id}'s Top 40 ${payload.message}`,
+        description: 
+        `Your Top 40 tracks ${payload.message}. Brought to you by Statify.`,
+      }),
+      headers: {
+        "Accept": "application/json",
+        "Authorization": `Bearer ${payload.token}`,
+        "Content-Type": "application/json"
+      },
+      method: "POST"
+    })
+    .then(res => res.json())
+    .then(res => {
+      const playlistId = res.id;
+      fetch(
+        `https://api.spotify.com/v1/users/` + 
+        `${payload.id}/playlists/${playlistId}/tracks`, 
+        {
+          body: JSON.stringify({
+            uris: payload.array,
+          }),
+          headers: {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${payload.token}`,
+            "Content-Type": "application/json"
+          },
+          method: "POST"
+        })
+        .then(res => res.json())
+        .then(res => response.status(201).json(res.snapshot_id))
+        .catch(error => response.status(500).json({ error }));
+    })
+    .catch(error => response.status(500).json({ error }))
 });
 
 app.listen(app.get('port'), () => {
