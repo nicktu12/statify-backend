@@ -130,21 +130,23 @@ app.post('/top-songs', (request, response) => {
         // copy top artists to response body
         Object.assign(body, { topArtists: cleanArtistRes(res) });
         // retrieve recently played songs
-        fetch(
-          `https://api.spotify.com/v1/me/player/recently-played`, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${body.access_token}`
-            }
-          }).then(res => res.json())
-          .then(res => {
-            // copy recently played to response body
-            Object.assign(body, { recentlyPlayed: recentlyPlayedCleaner(res) });
-          })
-          // send response
-          .then(res => response.status(200).json({ body }))
+        fetch(`https://api.spotify.com/v1/me/player/recently-played`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${body.access_token}`
+          }
+        }).then(res => res.json())
+        .then(res => {
+          // copy recently played to response body
+          Object.assign(body, { recentlyPlayed: recentlyPlayedCleaner(res) });
+        })
+        // send response
+        .then(res => response.status(200).json({ body }))
+        .catch(error => response.status(500).json({ error }))
       })
+      .catch(error => response.status(500).json({ error }));
     })
+    .catch(error => response.status(500).json({ error }));
   })
  .catch(error => response.status(500).json({ error }));
 })
