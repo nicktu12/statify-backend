@@ -35,8 +35,33 @@ app.get('/login', (request, response) => {
 })
 
 app.post('/top-songs', (request, response) => {
-  console.log(request.body)
-
+  const formData = {
+    'grant_type': 'authorization_code',
+    'code': request.body.authCode,
+    'redirect_uri': 'http://localhost:4000/',
+    'client_id': process.env.SPOTIFY_CLIENT_ID,
+    'client_secret': process.env.SPOTIFY_SECRET_ID,
+  };
+  let formBody = [];
+  for (let property in formData) {
+    let encodedKey = encodeURIComponent(property);
+    let encodedValue = encodeURIComponent(formData[property]);
+    formBody.push(encodedKey + '=' + encodedValue);
+}
+  formBody = formBody.join('&');
+  console.log({formBody})
+//  return fetch(
+//    `https://galvanize-cors-proxy.herokuapp.com/` + 
+//    `https://accounts.spotify.com/api/token`, {
+//      method: 'POST',
+//      headers: {
+//        'Content-Type': 'application/x-www-form-urlencoded',
+//        'Accept': 'application/json'
+//      },
+//     body: formBody
+//    }).then(res => res.json())
+//   .then(jsonRes => accessTokenCleaner(jsonRes))
+//   .catch(error => alert(error));
 })
 
 app.listen(app.get('port'), () => {
