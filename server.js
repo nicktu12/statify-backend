@@ -164,6 +164,7 @@ app.post('/top-artists', (request, response) => {
  .catch(error => response.status(500).json({ error }));
 });
 
+// get top songs
 app.post('/top-songs', (request, response) => {
   const token = request.body.token;
   const urls = [
@@ -180,7 +181,7 @@ app.post('/top-songs', (request, response) => {
     }).then(res => res.json())
     .then(res => cleanSongRes(res))
   }))
-  .then(res => response.status(200).json({ res }))
+  .then(res => response.status(200).json(res))
 });
 
 app.listen(app.get('port'), () => {
