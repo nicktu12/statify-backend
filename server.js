@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const fetch = require('node-fetch');
 // const jwt = require('jsonwebtoken');
-
 const environment = process.env.NODE_ENV || 'development';
 // const configuration = require('./knexfile')[environment];
 // const database = require('knex')(configuration);
@@ -38,7 +38,7 @@ app.post('/top-songs', (request, response) => {
   const formData = {
     'grant_type': 'authorization_code',
     'code': request.body.authCode,
-    'redirect_uri': 'http://localhost:4000/',
+    'redirect_uri': 'http://localhost:3000/',
     'client_id': process.env.SPOTIFY_CLIENT_ID,
     'client_secret': process.env.SPOTIFY_SECRET_ID,
   };
@@ -49,7 +49,16 @@ app.post('/top-songs', (request, response) => {
     formBody.push(encodedKey + '=' + encodedValue);
 }
   formBody = formBody.join('&');
-  console.log({formBody})
+  fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded',
+      'Accept': 'application/json'
+    },
+    body: formBody
+  }).then(res => res.json())
+  .then(jsonRes => response.status(200).json({ body: jsonRes }))
+  .catch(error => response.status(500).json({ error }));
 //  return fetch(
 //    `https://galvanize-cors-proxy.herokuapp.com/` + 
 //    `https://accounts.spotify.com/api/token`, {
