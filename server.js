@@ -79,6 +79,8 @@ const cleanSongRes = json => json.items.map(song =>
 // start auth code flow
 app.get('/login', (request, response) => response.status(200).redirect(`https://accounts.spotify.com/authorize/?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&scope=user-read-private%20user-read-email%20user-top-read%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played&state=34fFs29kd09`));
 
+app.get('/test', (request, response) => response.status(200).send('Hello friend'))
+
 // get auth code, user info, top songs and recently played
 app.post('/top-artists', (request, response) => {
   const { authCode } = request.body;
