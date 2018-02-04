@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(`${__dirname}/public`));
 app.use((request, response, next) => {
-  response.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  response.header('Access-Control-Allow-Origin', 'http://statify12.herokuapp.com');
   response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
@@ -77,7 +77,7 @@ const cleanSongRes = json => json.items.map(song =>
   }));
 
 // start auth code flow
-app.get('/login', (request, response) => response.status(200).redirect(`https://accounts.spotify.com/authorize/?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&scope=user-read-private%20user-read-email%20user-top-read%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played&state=34fFs29kd09`));
+app.get('/login', (request, response) => response.status(200).redirect(`https://accounts.spotify.com/authorize/?client_id=${process.env.SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=http%3A%2F%2Fstatify12%2Eherokuapp%2Ecom%2F&scope=user-read-private%20user-read-email%20user-top-read%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played&state=34fFs29kd09`));
 
 app.get('/test', (request, response) => response.status(200).send('Hello friend'))
 
@@ -89,7 +89,7 @@ app.post('/top-artists', (request, response) => {
   const formData = {
     'grant_type': 'authorization_code',
     'code': authCode,
-    'redirect_uri': 'http://localhost:3000/',
+    'redirect_uri': 'http://statify12.herokuapp.com/',
     'client_id': process.env.SPOTIFY_CLIENT_ID,
     'client_secret': process.env.SPOTIFY_SECRET_ID,
   };
