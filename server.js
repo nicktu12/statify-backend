@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(`${__dirname}/public`));
 app.use((request, response, next) => {
-  response.header('Access-Control-Allow-Origin', 'http://statify12.herokuapp.com');
+  response.header('Access-Control-Allow-Origin', 'https://statify12.herokuapp.com');
   response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
