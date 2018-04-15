@@ -89,7 +89,7 @@ app.post('/top-artists', (request, response) => {
   const formData = {
     'grant_type': 'authorization_code',
     'code': authCode,
-    'redirect_uri': 'http://statify12.herokuapp.com/',
+    'redirect_uri': 'https://statify12.herokuapp.com/',
     'client_id': process.env.SPOTIFY_CLIENT_ID,
     'client_secret': process.env.SPOTIFY_SECRET_ID,
   };
