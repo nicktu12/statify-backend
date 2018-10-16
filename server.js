@@ -113,6 +113,7 @@ app.post('/top-artists', (request, response) => {
     .then((res) => {
     // copy access token to response body
       Object.assign(body, { access_token: res.access_token });
+      console.log({body})
       // retrieve user info
       fetch('https://api.spotify.com/v1/me', {
         headers: {
@@ -125,7 +126,7 @@ app.post('/top-artists', (request, response) => {
           // copy user info to response body
           Object.assign(body, { userInfo: cleanUserRes(res) });
           // retrieve top artists
-          console.log({body})
+          
           fetch('https://api.spotify.com/v1/me/top/artists?limit=50', {
             headers: {
               'Content-Type': 'application/json',
