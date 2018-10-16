@@ -42,7 +42,7 @@ const cleanSongArtist = array => cleanStringArray(array.map(artist => artist.nam
 const cleanArtistRes = json => json.items.map(item =>
   Object.assign({}, {
     name: item.name,
-    photo: item.images[0],
+    photo: item.images[0] ? item.images[0] : '',
     followers: item.followers.total.toLocaleString(),
     popularity: item.popularity,
     genres: cleanStringArray(item.genres),
@@ -53,7 +53,7 @@ const cleanUserRes = json => Object.assign(
   {
     name: json.display_name,
     email: json.email,
-    image: 'https://cdn2.thecatapi.com/images/4st.jpg',
+    image: json.images[0] ? json.images[0].url : '',
     id: json.id,
     followers: json.followers.total,
     plan: json.product,
@@ -71,7 +71,7 @@ const cleanSongRes = json => json.items.map(song =>
     title: song.name,
     artists: cleanSongArtist(song.artists),
     album: song.album.name,
-    image: song.album.images[0].url,
+    image: song.album.images[0] ? song.album.images[0].url : '',
     popularity: song.popularity,
     uri: song.uri,
   }));
@@ -121,12 +121,9 @@ app.post('/top-artists', (request, response) => {
         },
       }).then(res => res.json())
         .then((res) => {
-          console.log({me: res})
           // copy user info to response body
           Object.assign(body, { userInfo: cleanUserRes(res) });
-          console.log({body})
           // retrieve top artists
-          
           fetch('https://api.spotify.com/v1/me/top/artists?limit=50', {
             headers: {
               'Content-Type': 'application/json',
@@ -134,7 +131,6 @@ app.post('/top-artists', (request, response) => {
             },
           }).then(res => res.json())
             .then((res) => {
-            console.log({topArtistsRes: res})
             // copy top artists to response body
               Object.assign(body, { topArtists: cleanArtistRes(res) });
               // retrieve recently played songs
