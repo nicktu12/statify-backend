@@ -122,9 +122,9 @@ app.post('/top-artists', (request, response) => {
       }).then(res => res.json())
         .then((res) => {
           console.log({me: res})
-          console.log({body})
           // copy user info to response body
           Object.assign(body, { userInfo: cleanUserRes(res) });
+          console.log({body})
           // retrieve top artists
           
           fetch('https://api.spotify.com/v1/me/top/artists?limit=50', {
