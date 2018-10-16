@@ -121,6 +121,7 @@ app.post('/top-artists', (request, response) => {
         },
       }).then(res => res.json())
         .then((res) => {
+          console.log({me: res})
           // copy user info to response body
           Object.assign(body, { userInfo: cleanUserRes(res) });
           // retrieve top artists
