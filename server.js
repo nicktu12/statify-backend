@@ -111,6 +111,7 @@ app.post('/top-artists', (request, response) => {
     body: formBody,
   }).then(res => res.json())
     .then((res) => {
+      console.log({res})
     // copy access token to response body
       Object.assign(body, { access_token: res.access_token });
       // retrieve user info
