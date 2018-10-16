@@ -121,7 +121,6 @@ app.post('/top-artists', (request, response) => {
         },
       }).then(res => res.json())
         .then((res) => {
-          console.log({res})
           // copy user info to response body
           Object.assign(body, { userInfo: cleanUserRes(res) });
           // retrieve top artists
@@ -132,6 +131,7 @@ app.post('/top-artists', (request, response) => {
             },
           }).then(res => res.json())
             .then((res) => {
+            console.log({topArtistsRes: res})
             // copy top artists to response body
               Object.assign(body, { topArtists: cleanArtistRes(res) });
               // retrieve recently played songs
