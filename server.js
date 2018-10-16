@@ -53,7 +53,7 @@ const cleanUserRes = json => Object.assign(
   {
     name: json.display_name,
     email: json.email,
-    image: json.images[0].url,
+    image: 'https://cdn2.thecatapi.com/images/4st.jpg',
     id: json.id,
     followers: json.followers.total,
     plan: json.product,
