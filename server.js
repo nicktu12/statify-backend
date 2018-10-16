@@ -113,7 +113,6 @@ app.post('/top-artists', (request, response) => {
     .then((res) => {
     // copy access token to response body
       Object.assign(body, { access_token: res.access_token });
-      console.log({body})
       // retrieve user info
       fetch('https://api.spotify.com/v1/me', {
         headers: {
@@ -123,6 +122,7 @@ app.post('/top-artists', (request, response) => {
       }).then(res => res.json())
         .then((res) => {
           console.log({me: res})
+          console.log({body})
           // copy user info to response body
           Object.assign(body, { userInfo: cleanUserRes(res) });
           // retrieve top artists
