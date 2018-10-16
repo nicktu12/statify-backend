@@ -125,6 +125,7 @@ app.post('/top-artists', (request, response) => {
           // copy user info to response body
           Object.assign(body, { userInfo: cleanUserRes(res) });
           // retrieve top artists
+          console.log({body})
           fetch('https://api.spotify.com/v1/me/top/artists?limit=50', {
             headers: {
               'Content-Type': 'application/json',
