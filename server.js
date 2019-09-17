@@ -134,7 +134,7 @@ app.post('/top-artists', (request, response) => {
             // copy top artists to response body
               Object.assign(body, { topArtists: cleanArtistRes(res) });
               // retrieve recently played songs
-              fetch('https://api.spotify.com/v1/me/player/recently-played', {
+              fetch('https://api.spotify.com/v1/me/player/recently-played?limit=50', {
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${body.access_token}`,
